@@ -161,7 +161,7 @@ type LeaseDatabase struct {
 type Loggers struct {
 	DebugLevel    int             `json:"debuglevel"`
 	Name          string          `json:"name"`
-	OutputOptions []OutputOptions `json:"output_options"`
+	OutputOptions []OutputOptions `json:"output-options"`
 	Severity      string          `json:"severity"`
 }
 
