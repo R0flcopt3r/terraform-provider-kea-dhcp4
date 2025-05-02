@@ -10,6 +10,12 @@ import (
 func hostLease() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"subnet_id": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "subnet id",
+				ForceNew:    true,
+			},
 			"name": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -158,7 +164,7 @@ func resourceCreateLease(d *schema.ResourceData, m interface{}) error {
 		NextServer:    d.Get("next_server").(string),
 	}
 
-	err := apiClient.NewLease(lease)
+	err := apiClient.NewLease(lease, d.Get("subnet_id").(int))
 
 	if err != nil {
 		return err
@@ -199,7 +205,7 @@ func resourceUpdateLease(d *schema.ResourceData, m interface{}) error {
 		NextServer:    d.Get("next_server").(string),
 	}
 
-	err := apiClient.UpdateLease(lease)
+	err := apiClient.UpdateLease(lease, d.Get("subnet_id").(int))
 	if err != nil {
 		return err
 	}
@@ -237,7 +243,7 @@ func resourceReadLease(d *schema.ResourceData, m interface{}) error {
 		NextServer:    d.Get("next_server").(string),
 	}
 
-	ok := apiClient.ReadLease(lease)
+	ok := apiClient.ReadLease(lease, d.Get("subnet_id").(int))
 	if !ok {
 		d.SetId("")
 	}
@@ -275,7 +281,7 @@ func resourceDeleteLease(d *schema.ResourceData, m interface{}) error {
 		NextServer:    d.Get("next_server").(string),
 	}
 
-	err := apiClient.DeleteLease(lease)
+	err := apiClient.DeleteLease(lease, d.Get("subnet_id").(int))
 	if err != nil {
 		return err
 	}

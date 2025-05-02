@@ -40,6 +40,7 @@ Configuration and Usage:
     }
     # create resource lease in dhcp conf.
     resource "kea-dhcp4_host_lease" "exampleVM" {
+        subnet_id = 1
         name = "exampleVM"
         mac_address = "aa:bb:cc:00:11:22"
         ip_address = "192.168.10.10"
