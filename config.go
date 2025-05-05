@@ -319,7 +319,7 @@ func (c *Client) ReadLease(r Reservations, subnet_id int) bool {
 		log.Print(errortxt)
 		return false
 	}
-	for _, reservation := range subnet.Reservations {
+	for _, reservation := range (*subnet).Reservations {
 		if reservation.Hostname == r.Hostname {
 			log.Printf("[DEBUG] read function found the host\n")
 			return true
@@ -345,7 +345,7 @@ func (c *Client) NewLease(r Reservations, subnet_id int) error {
 		log.Print(errortxt)
 		return fmt.Errorf(errortxt)
 	}
-	subnet.Reservations = append(subnet.Reservations, r)
+	(*subnet).Reservations = append((*subnet).Reservations, r)
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
 	enc, err := json.Marshal(jsonSet)
 	check(err)
@@ -397,9 +397,9 @@ func (c *Client) UpdateLease(r Reservations, subnet_id int) error {
 		log.Print(errortxt)
 		return fmt.Errorf(errortxt)
 	}
-	for index, reservation := range subnet.Reservations {
+	for index, reservation := range (*subnet).Reservations {
 		if reservation.Hostname == r.Hostname {
-			subnet.Reservations[index] = r
+			(*subnet).Reservations[index] = r
 		}
 	}
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
@@ -455,13 +455,13 @@ func (c *Client) DeleteLease(r Reservations, subnet_id int) error {
 		return fmt.Errorf(errortxt)
 	}
 	filteredReservations := make([]Reservations, 0)
-	for _, reservation := range subnet.Reservations {
+	for _, reservation := range (*subnet).Reservations {
 		if reservation.Hostname != r.Hostname {
 			filteredReservations = append(filteredReservations, reservation)
 		}
 	}
 
-	subnet.Reservations = filteredReservations
+	(*subnet).Reservations = filteredReservations
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
 	enc, err := json.Marshal(jsonSet)
 	check(err)
