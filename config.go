@@ -305,21 +305,26 @@ func (c *Config) Client() (*Client, error) {
 	return client, nil
 }
 
+func find_subnet_idx(subnet_id int, subnets *[]Subnet4) (int, error) {
+	for i, s := range *subnets {
+		if s.Id == subnet_id {
+			return i, nil
+		}
+	}
+	errortxt := fmt.Sprintf("Could not find subnet with ID %d", subnet_id)
+	return -1, fmt.Errorf(errortxt)
+
+}
+
 // ReadLease method to check if lease exists in kea-dhcpd4
 func (c *Client) ReadLease(r Reservations, subnet_id int) bool {
-	var subnet *Subnet4
-	for _, s := range c.currentConfig[0].Arguments.Dhcp4.Subnet4 {
-		if s.Id == subnet_id {
-			subnet = &s
-		}
-
-	}
-	if subnet == nil {
-		errortxt := fmt.Sprintf("Could not find subnet with ID %d", subnet_id)
-		log.Print(errortxt)
+	subnet_idx, err := find_subnet_idx(subnet_id, &c.currentConfig[0].Arguments.Dhcp4.Subnet4)
+	if err != nil {
+		log.Print(err)
 		return false
 	}
-	for _, reservation := range subnet.Reservations {
+
+	for _, reservation := range c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations {
 		if reservation.Hostname == r.Hostname {
 			log.Printf("[DEBUG] read function found the host\n")
 			return true
@@ -333,19 +338,13 @@ func (c *Client) ReadLease(r Reservations, subnet_id int) bool {
 func (c *Client) NewLease(r Reservations, subnet_id int) error {
 	var data []byte
 
-	var subnet *Subnet4
-	for _, s := range c.currentConfig[0].Arguments.Dhcp4.Subnet4 {
-		if s.Id == subnet_id {
-			subnet = &s
-		}
+	subnet_idx, err := find_subnet_idx(subnet_id, &c.currentConfig[0].Arguments.Dhcp4.Subnet4)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
 
-	}
-	if subnet == nil {
-		errortxt := fmt.Sprintf("Could not find subnet with ID %d", subnet_id)
-		log.Print(errortxt)
-		return fmt.Errorf(errortxt)
-	}
-	subnet.Reservations = append(subnet.Reservations, r)
+	c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations = append(c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations, r)
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
 	enc, err := json.Marshal(jsonSet)
 	check(err)
@@ -385,21 +384,15 @@ func (c *Client) NewLease(r Reservations, subnet_id int) error {
 func (c *Client) UpdateLease(r Reservations, subnet_id int) error {
 	var data []byte
 
-	var subnet *Subnet4
-	for _, s := range c.currentConfig[0].Arguments.Dhcp4.Subnet4 {
-		if s.Id == subnet_id {
-			subnet = &s
-		}
+	subnet_idx, err := find_subnet_idx(subnet_id, &c.currentConfig[0].Arguments.Dhcp4.Subnet4)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
 
-	}
-	if subnet == nil {
-		errortxt := fmt.Sprintf("Could not find subnet with ID %d", subnet_id)
-		log.Print(errortxt)
-		return fmt.Errorf(errortxt)
-	}
-	for index, reservation := range subnet.Reservations {
+	for index, reservation := range c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations {
 		if reservation.Hostname == r.Hostname {
-			subnet.Reservations[index] = r
+			c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations[index] = r
 		}
 	}
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
@@ -442,26 +435,20 @@ func (c *Client) UpdateLease(r Reservations, subnet_id int) error {
 func (c *Client) DeleteLease(r Reservations, subnet_id int) error {
 	var data []byte
 
-	var subnet *Subnet4
-	for _, s := range c.currentConfig[0].Arguments.Dhcp4.Subnet4 {
-		if s.Id == subnet_id {
-			subnet = &s
-		}
+	subnet_idx, err := find_subnet_idx(subnet_id, &c.currentConfig[0].Arguments.Dhcp4.Subnet4)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
 
-	}
-	if subnet == nil {
-		errortxt := fmt.Sprintf("Could not find subnet with ID %d", subnet_id)
-		log.Print(errortxt)
-		return fmt.Errorf(errortxt)
-	}
 	filteredReservations := make([]Reservations, 0)
-	for _, reservation := range subnet.Reservations {
+	for _, reservation := range c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations {
 		if reservation.Hostname != r.Hostname {
 			filteredReservations = append(filteredReservations, reservation)
 		}
 	}
 
-	subnet.Reservations = filteredReservations
+	c.currentConfig[0].Arguments.Dhcp4.Subnet4[subnet_idx].Reservations = filteredReservations
 	jsonSet := configSet{Command: "config-set", Service: SERVICE, Arguments: c.currentConfig[0].Arguments}
 	enc, err := json.Marshal(jsonSet)
 	check(err)
