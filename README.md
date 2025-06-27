@@ -14,8 +14,21 @@ Installation:
 
 1. "git clone" this repo
 2. "go build" inside of it
-3. Copy binary file into .terraform.d/plugins/
-4. "terraform init" to initialize this plugin
+3. Copy binary file into '~/.terraform.d/plugins/registry.terraform.io/feliksas/kea-dhcp4/<VERSION>/linux_amd64/terraform-provider-kea-dhcp4'
+4. update `~/.terraformrc`:
+
+```
+provider_installation {
+  filesystem_mirror {
+    path    = "/home/<USER>/.terraform.d/plugins"
+  }
+  direct {
+    exclude = [
+    "registry.terraform.io/feliksas/*",
+    ]
+  }
+}
+```
 
 
 Configuration and Usage:
