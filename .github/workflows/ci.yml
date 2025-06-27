@@ -27,14 +27,14 @@ jobs:
           go-version: 1.17
 
       - name: Create Terraform plugins directory
-        run: mkdir -p ~/.terraform.d/plugins/terraform.local/feliksas/kea-dhcp4/1.0.0/linux_amd64/
+        run: mkdir -p ~/.terraform.d/plugins/terraform.local/r0flcopt3r/kea-dhcp4/1.0.0/linux_amd64/
 
       - name: Build
         env:
           CGO_ENABLED: "0"
           GOOS: linux
           GOARCH: amd64
-        run: go build -v -a -o ~/.terraform.d/plugins/terraform.local/feliksas/kea-dhcp4/1.0.0/linux_amd64/terraform-provider-kea-dhcp4_v1.0.0
+        run: go build -v -a -o ~/.terraform.d/plugins/terraform.local/r0flcopt3r/kea-dhcp4/1.0.0/linux_amd64/terraform-provider-kea-dhcp4_v1.0.0
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2

@@ -12,8 +12,8 @@ FROM scratch AS exporter
 COPY --from=builder /build/terraform-provider-kea* /
 
 FROM hashicorp/terraform:latest AS runner
-RUN mkdir -p /root/.terraform.d/plugins/terraform.local/feliksas/kea-dhcp4/1.0.0/linux_amd64
-COPY --from=builder /build/terraform-provider-kea-dhcp4_v1.0.0 /root/.terraform.d/plugins/terraform.local/feliksas/kea-dhcp4/1.0.0/linux_amd64/
+RUN mkdir -p /root/.terraform.d/plugins/terraform.local/r0flcopt3r/kea-dhcp4/1.0.0/linux_amd64
+COPY --from=builder /build/terraform-provider-kea-dhcp4_v1.0.0 /root/.terraform.d/plugins/terraform.local/r0flcopt3r/kea-dhcp4/1.0.0/linux_amd64/
 RUN mkdir /tffiles
 WORKDIR /tffiles
 COPY ./test-data/terraform/*.tf /tffiles/
