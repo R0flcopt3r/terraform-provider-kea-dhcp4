@@ -48,6 +48,7 @@ jobs:
           docker build -t nginx-test -f api.Dockerfile .
           docker run -d --network kea --name kea kea-test
           docker run -d --network kea --name api -p 127.0.0.1:8080:8080/tcp nginx-test
+          sleep 30
 
       - name: Test
         working-directory: test-data/terraform
